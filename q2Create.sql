@@ -33,7 +33,7 @@ CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, GPA) AS
     WHERE high_gpa.StudentRegistrationId NOT IN
     (
         SELECT cr.StudentRegistrationId
-        FROM high_gpa as gac JOIN CourseRegistrations as cr ON cr.StudentRegistrationId = high_gpa.StudentRegistrationId
+        FROM high_gpa JOIN CourseRegistrations as cr ON cr.StudentRegistrationId = high_gpa.StudentRegistrationId
         WHERE cr.Grade  < 4
     )
 );
