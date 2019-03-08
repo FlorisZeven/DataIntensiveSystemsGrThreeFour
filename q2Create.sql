@@ -37,3 +37,30 @@ CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, GPA) AS
         WHERE cr.Grade  < 4
     )
 );
+
+
+CREATE VIEW females_per_department(Department, Amount) as (
+
+    SELECT dept, count(distinct s.studentid)
+    FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
+    WHERE     s.gender = 'F'
+            and    s.studentid = srtd.studentid
+            and    d.degreeid = srtd.degreeid
+    GROUP BY d.dept
+);
+
+CREATE VIEW students_per_department(Department, Amount) as (
+
+    SELECT dept, count(distinct s.studentid)
+    FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
+    WHERE  s.studentid = srtd.studentid
+            and    d.degreeid = srtd.degreeid
+    GROUP BY d.dept
+);
+
+SELECT
+    CAST(fpd.Amount AS float) / spd.Amount
+FROM
+    females_per_department as fpd,
+    students_per_department as spd
+GROUP BY fpd.department
