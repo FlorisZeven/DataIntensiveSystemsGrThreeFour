@@ -11,12 +11,13 @@ CREATE INDEX acp_studentid_degreeid ON all_courses_passed(StudentId, DegreeId);
 
 CREATE MATERIALIZED VIEW gpa_active_complete(StudentId, DegreeId, GPA, complete) AS
 (
-    SELECT acp.StudentId, acp.DegreeId, avg(Grade) as GPA, case when sum(ECTS) > TotalECTS then 1 else 0 end as complete
+    SELECT acp.StudentId, acp.DegreeId, cast(sum(Grade*ECTS) AS FLOAT) / sum(ECTS) as GPA, case when sum(ECTS) > TotalECTS then 1 else 0 end as complete
       FROM all_courses_passed as acp JOIN Degrees as d ON d.DegreeId = acp.DegreeId
       JOIN CourseOffers as co ON co.CourseOfferId = acp.CourseOfferId
       JOIN Courses as c ON c.CourseId = co.CourseId
     GROUP BY acp.StudentId, acp.DegreeId, TotalECTS
 );
+
 
 CREATE VIEW high_gpa(StudentRegistrationId, StudentId, GPA) AS
 (
