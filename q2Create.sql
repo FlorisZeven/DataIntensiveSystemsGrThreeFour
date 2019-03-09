@@ -4,7 +4,7 @@ CREATE VIEW females_per_department(Department, Amount) as (
     FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
     WHERE     s.Gender = 'F'
             and    s.StudentId = srtd.StudentId
-            and    d.DegreeId = srtd.Degreeid
+            and    d.DegreeId = srtd.DegreeId
     GROUP BY d.Dept
 );
 
@@ -45,16 +45,9 @@ CREATE VIEW active_females_per_degree(Degree, Amount) as (
             s.StudentId = gac.StudentId
         and gac.Complete = 0
         and s.Gender = 'F'
-
     GROUP BY gac.DegreeId
 );
 
-CREATE VIEW high_gpa(StudentRegistrationId, StudentId, GPA) AS
-(
-	SELECT srtd.StudentRegistrationId, gac.StudentId, gac.GPA
-	FROM gpa_active_complete as gac JOIN StudentRegistrationsToDegrees as srtd ON srtd.StudentId = gac.StudentId AND srtd.DegreeId = gac.DegreeID
-	WHERE GPA > 9.0 AND Complete = 1
-);
 
 CREATE MATERIALIZED VIEW all_courses_passed(StudentId, DegreeId, CourseOfferId, Grade) AS
 (
@@ -76,14 +69,3 @@ CREATE MATERIALIZED VIEW gpa_active_complete(StudentId, DegreeId, GPA, complete)
     GROUP BY acp.StudentId, acp.DegreeId, TotalECTS
 );
 
-CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, GPA) AS
-(
-    SELECT high_gpa.StudentId, high_gpa.GPA
-    FROM high_gpa
-    WHERE high_gpa.StudentRegistrationId NOT IN
-    (
-        SELECT cr.StudentRegistrationId
-        FROM high_gpa JOIN CourseRegistrations as cr ON cr.StudentRegistrationId = high_gpa.StudentRegistrationId
-        WHERE cr.Grade  < 5
-    )
-);
