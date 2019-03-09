@@ -47,7 +47,6 @@ CREATE VIEW active_females_per_degree(Degree, Amount) as (
         and s.Gender = 'F'
 
     GROUP BY gac.DegreeId
-
 );
 
 CREATE VIEW high_gpa(StudentRegistrationId, StudentId, GPA) AS
