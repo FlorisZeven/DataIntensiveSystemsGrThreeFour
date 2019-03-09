@@ -20,20 +20,6 @@ CREATE VIEW students_per_department(Department, Amount) as (
     GROUP BY d.Dept
 );
 
-
--- Q3
-CREATE VIEW active_per_degree(Degree, Gender, Amount) as (
-
-    SELECT gac.degreeID, count(distinct gac.StudentId)
-    FROM
-        gpa_active_complete as gac, Students as s
-    WHERE
-            s.StudentId = gac.StudentId
-        and gac.Complete = 0
-    GROUP BY CUBE(gac.DegreeId, s.Gender)
-);
-
-
 -- Q8
 CREATE VIEW total_students_per_offer(CourseOfferID, totalStudents) AS (
 
