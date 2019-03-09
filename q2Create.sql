@@ -57,10 +57,3 @@ CREATE VIEW students_per_department(Department, Amount) as (
             and    d.degreeid = srtd.degreeid
     GROUP BY d.dept
 );
-
-SELECT
-    CAST(fpd.Amount AS float) / spd.Amount
-FROM
-    females_per_department as fpd,
-    students_per_department as spd
-GROUP BY fpd.department
