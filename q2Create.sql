@@ -59,9 +59,8 @@ CREATE VIEW total_students_and_assistants_per_offer(CourseOfferID) AS
 (
     SELECT DISTINCT tspo.CourseOfferID
     FROM total_students_per_offer AS tspo JOIN total_assistants_per_offer AS tapo ON tspo.CourseOfferID = tapo.CourseOfferID
-    WHERE totalStudents / 50.0 > totalAssistants
+    WHERE CAST(totalStudents AS FLOAT) / totalAssistants > 50.0
 );
-
 
 
 -- Q1 indirectly Q2, Q3, Q4
