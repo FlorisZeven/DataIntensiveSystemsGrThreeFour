@@ -1,3 +1,5 @@
+
+-- Q4
 CREATE VIEW females_per_department(Department, Amount) as (
 
     SELECT Dept, count(distinct s.StudentId)
@@ -8,6 +10,7 @@ CREATE VIEW females_per_department(Department, Amount) as (
     GROUP BY d.Dept
 );
 
+-- Q4
 CREATE VIEW students_per_department(Department, Amount) as (
 
     SELECT Dept, count(distinct s.StudentId)
@@ -17,26 +20,9 @@ CREATE VIEW students_per_department(Department, Amount) as (
     GROUP BY d.Dept
 );
 
-CREATE VIEW females_per_department_degree(Department, DegreeId, Amount) as (
 
-    SELECT d.Dept, d.DegreeId, count(distinct s.StudentId)
-    FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
-    WHERE     s.gender = 'F'
-            and    s.StudentId = srtd.StudentId
-            and    d.Degreeid = srtd.DegreeId
-    GROUP BY CUBE (d.Dept, d.DegreeId)
-);
-
-CREATE VIEW students_per_department_degree(Department, DegreeId, Amount) as (
-
-    SELECT dept, d.DegreeId, count(distinct s.studentid)
-    FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
-    WHERE  s.studentid = srtd.studentid
-            and    d.degreeid = srtd.degreeid
-    GROUP BY CUBE (d.Dept, d.DegreeId)
-);
-
-CREATE VIEW active_females_per_degree(Degree, Amount) as (
+-- Q3
+CREATE VIEW active_per_degree(Degree, Gender, Amount) as (
 
     SELECT gac.degreeID, count(distinct gac.StudentId)
     FROM
@@ -44,11 +30,41 @@ CREATE VIEW active_females_per_degree(Degree, Amount) as (
     WHERE
             s.StudentId = gac.StudentId
         and gac.Complete = 0
-        and s.Gender = 'F'
-    GROUP BY gac.DegreeId
+    GROUP BY CUBE(gac.DegreeId, s.Gender)
 );
 
 
+-- Q8
+CREATE VIEW total_students_per_offer(CourseOfferID, totalStudents) AS (
+
+    SELECT CourseOfferID, COUNT(StudentRegistrationId)
+    FROM
+        CourseRegistrations
+    GROUP BY
+        CourseOfferID
+);
+
+-- Q8
+CREATE VIEW total_assistants_per_offer(CourseOfferID, totalAssistants) AS (
+
+    SELECT CourseOfferID, COUNT(StudentRegistrationId)
+    FROM
+        StudentAssistants
+    GROUP BY
+        CourseOfferID
+);
+
+-- Q8
+CREATE VIEW total_students_and_assistants_per_offer(CourseOfferID) AS
+(
+    SELECT DISTINCT tspo.CourseOfferID
+    FROM total_students_per_offer AS tspo JOIN total_assistants_per_offer AS tapo ON tspo.CourseOfferID = tapo.CourseOfferID
+    WHERE totalStudents / 50.0 > totalAssistants
+);
+
+
+
+-- Q1 indirectly Q2, Q3, Q4
 CREATE MATERIALIZED VIEW all_courses_passed(StudentId, DegreeId, CourseOfferId, Grade) AS
 (
     SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
@@ -68,4 +84,6 @@ CREATE MATERIALIZED VIEW gpa_active_complete(StudentId, DegreeId, GPA, complete)
       JOIN Courses as c ON c.CourseId = co.CourseId
     GROUP BY acp.StudentId, acp.DegreeId, TotalECTS
 );
+
+
 
