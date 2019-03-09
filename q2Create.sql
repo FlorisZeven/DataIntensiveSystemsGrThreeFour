@@ -53,6 +53,6 @@ CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, GPA) AS
     (
         SELECT cr.StudentRegistrationId
         FROM high_gpa JOIN CourseRegistrations as cr ON cr.StudentRegistrationId = high_gpa.StudentRegistrationId
-        WHERE cr.Grade  < 4
+        WHERE cr.Grade  < 5
     )
 );
