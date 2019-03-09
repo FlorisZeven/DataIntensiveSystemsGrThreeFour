@@ -1,28 +1,28 @@
 CREATE VIEW females_per_department(Department, Amount) as (
 
-    SELECT dept, count(distinct s.studentid)
+    SELECT Dept, count(distinct s.StudentId)
     FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
-    WHERE     s.gender = 'F'
-            and    s.studentid = srtd.studentid
-            and    d.degreeid = srtd.degreeid
-    GROUP BY d.dept
+    WHERE     s.Gender = 'F'
+            and    s.StudentId = srtd.StudentId
+            and    d.DegreeId = srtd.Degreeid
+    GROUP BY d.Dept
 );
 
 CREATE VIEW students_per_department(Department, Amount) as (
 
-    SELECT dept, count(distinct s.studentid)
+    SELECT Dept, count(distinct s.StudentId)
     FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
-    WHERE  s.studentid = srtd.studentid
-            and    d.degreeid = srtd.degreeid
-    GROUP BY d.dept
+    WHERE  s.Studentid = srtd.StudentId
+            and    d.DegreeId = srtd.DegreeId
+    GROUP BY d.Dept
 );
 
 CREATE MATERIALIZED VIEW all_courses_passed(StudentId, DegreeId, CourseOfferId, Grade) AS
 (
-    SELECT srtd.StudentId, srtd.degreeId, cr.CourseOfferId, cr.grade
+    SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
       FROM CourseRegistrations as cr
       JOIN StudentRegistrationsToDegrees as srtd ON cr.StudentRegistrationId = srtd.StudentRegistrationId
-     WHERE cr.grade > 4
+     WHERE cr.Grade > 4
 );
 
 CREATE INDEX acp_studentid_degreeid ON all_courses_passed(StudentId, DegreeId);
