@@ -17,6 +17,46 @@ CREATE VIEW students_per_department(Department, Amount) as (
     GROUP BY d.Dept
 );
 
+CREATE VIEW females_per_department_degree(Department, DegreeId, Amount) as (
+
+    SELECT d.Dept, d.DegreeId, count(distinct s.StudentId)
+    FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
+    WHERE     s.gender = 'F'
+            and    s.StudentId = srtd.StudentId
+            and    d.Degreeid = srtd.DegreeId
+    GROUP BY CUBE (d.Dept, d.DegreeId)
+);
+
+CREATE VIEW students_per_department_degree(Department, DegreeId, Amount) as (
+
+    SELECT dept, d.DegreeId, count(distinct s.studentid)
+    FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
+    WHERE  s.studentid = srtd.studentid
+            and    d.degreeid = srtd.degreeid
+    GROUP BY CUBE (d.Dept, d.DegreeId)
+);
+
+CREATE VIEW active_females_per_degree(Degree, Amount) as (
+
+    SELECT gac.degreeID, count(distinct gac.StudentId)
+    FROM
+        gpa_active_complete as gac, Students as s
+    WHERE
+            s.StudentId = gac.StudentId
+        and gac.Complete = 0
+        and s.Gender = 'F'
+
+    GROUP BY gac.DegreeId
+
+);
+
+CREATE VIEW high_gpa(StudentRegistrationId, StudentId, GPA) AS
+(
+	SELECT srtd.StudentRegistrationId, gac.StudentId, gac.GPA
+	FROM gpa_active_complete as gac JOIN StudentRegistrationsToDegrees as srtd ON srtd.StudentId = gac.StudentId AND srtd.DegreeId = gac.DegreeID
+	WHERE GPA > 9.0 AND Complete = 1
+);
+
 CREATE MATERIALIZED VIEW all_courses_passed(StudentId, DegreeId, CourseOfferId, Grade) AS
 (
     SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
@@ -35,14 +75,6 @@ CREATE MATERIALIZED VIEW gpa_active_complete(StudentId, DegreeId, GPA, complete)
       JOIN CourseOffers as co ON co.CourseOfferId = acp.CourseOfferId
       JOIN Courses as c ON c.CourseId = co.CourseId
     GROUP BY acp.StudentId, acp.DegreeId, TotalECTS
-);
-
-
-CREATE VIEW high_gpa(StudentRegistrationId, StudentId, GPA) AS
-(
-	SELECT srtd.StudentRegistrationId, gac.StudentId, gac.GPA
-	FROM gpa_active_complete as gac JOIN StudentRegistrationsToDegrees as srtd ON srtd.StudentId = gac.StudentId AND srtd.DegreeId = gac.DegreeID
-	WHERE GPA > 9.0 AND Complete = 1
 );
 
 CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, GPA) AS
