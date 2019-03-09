@@ -1,3 +1,22 @@
+CREATE VIEW females_per_department(Department, Amount) as (
+
+    SELECT dept, count(distinct s.studentid)
+    FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
+    WHERE     s.gender = 'F'
+            and    s.studentid = srtd.studentid
+            and    d.degreeid = srtd.degreeid
+    GROUP BY d.dept
+);
+
+CREATE VIEW students_per_department(Department, Amount) as (
+
+    SELECT dept, count(distinct s.studentid)
+    FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
+    WHERE  s.studentid = srtd.studentid
+            and    d.degreeid = srtd.degreeid
+    GROUP BY d.dept
+);
+
 CREATE MATERIALIZED VIEW all_courses_passed(StudentId, DegreeId, CourseOfferId, Grade) AS
 (
     SELECT srtd.StudentId, srtd.degreeId, cr.CourseOfferId, cr.grade
@@ -19,41 +38,3 @@ CREATE MATERIALIZED VIEW gpa_active_complete(StudentId, DegreeId, GPA, complete)
 );
 
 
-CREATE VIEW high_gpa(StudentRegistrationId, StudentId, GPA) AS
-(
-	SELECT srtd.StudentRegistrationId, gac.StudentId, gac.GPA
-	FROM gpa_active_complete as gac JOIN StudentRegistrationsToDegrees as srtd ON srtd.StudentId = gac.StudentId AND srtd.DegreeId = gac.DegreeID
-	WHERE GPA > 9.0 AND Complete = 1
-);
-
-CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, GPA) AS
-(
-    SELECT high_gpa.StudentId, high_gpa.GPA
-    FROM high_gpa
-    WHERE high_gpa.StudentRegistrationId NOT IN
-    (
-        SELECT cr.StudentRegistrationId
-        FROM high_gpa JOIN CourseRegistrations as cr ON cr.StudentRegistrationId = high_gpa.StudentRegistrationId
-        WHERE cr.Grade  < 4
-    )
-);
-
-
-CREATE VIEW females_per_department(Department, Amount) as (
-
-    SELECT dept, count(distinct s.studentid)
-    FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
-    WHERE     s.gender = 'F'
-            and    s.studentid = srtd.studentid
-            and    d.degreeid = srtd.degreeid
-    GROUP BY d.dept
-);
-
-CREATE VIEW students_per_department(Department, Amount) as (
-
-    SELECT dept, count(distinct s.studentid)
-    FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
-    WHERE  s.studentid = srtd.studentid
-            and    d.degreeid = srtd.degreeid
-    GROUP BY d.dept
-);
