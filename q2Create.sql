@@ -1,13 +1,23 @@
 
 CREATE INDEX course_req_srID_crID on courseRegistrations(CourseofferId);
 
+--Q2
+CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, HIGHGPA) as (
+    SELECT StudentId, CAST(sum(Grade * ECTS) AS FLOAT) / sum(ECTS) as HIGHGPA
+    FROM CourseRegistrations as cr
+    JOIN CourseOffers as co ON cr.CourseOfferId = co.CourseOfferId
+    JOIN Courses as c ON c.CourseId = co.CourseId
+    JOIN StudentRegistrationsToDegrees as srtd ON srtd.StudentRegistrationId = cr.StudentRegistrationId
+    GROUP BY cr.StudentRegistrationId, StudentId
+    HAVING MIN(cr.Grade) > 4 AND (CAST(sum(Grade * ECTS) AS FLOAT) / sum(ECTS)) > 9.0
+);
+
 -- Q3
 CREATE MATERIALIZED VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS (
     SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
       FROM CourseRegistrations as cr
       JOIN StudentRegistrationsToDegrees as srtd ON cr.StudentRegistrationId = srtd.StudentRegistrationId
 );
-
 
 -- Q4
 CREATE MATERIALIZED VIEW females_per_department(Department, Amount) as (
@@ -111,32 +121,30 @@ CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, GPA) AS
     )
 );
 
-
-
 CREATE VIEW max_grades(CourseOfferId, Grade) AS (
 
-	SELECT CourseOfferId, max(Grade)
-	FROM all_courses_passed
-	GROUP BY CourseOfferId
+    SELECT CourseOfferId, max(Grade)
+    FROM all_courses_passed
+    GROUP BY CourseOfferId
 );
 
-CREATE VIEW ExcellentStudents2018Q1(StudentRegistrationID) AS (
+CREATE VIEW ExcellentStudents2018Q1(StudentID) AS (
 
-	SELECT acp.StudentRegistrationID
-	FROM
-		all_courses_passed AS acp
-		JOIN
-		max_grades
-		ON
-		acp.CourseOfferId = max_grades.CourseOfferId
-	WHERE
-		EXISTS(
-			SELECT CourseOfferId
-			FROM
-				CourseOffers AS co
-			WHERE
-				Year = 2018 AND
-				Quartile = 1
-		)
-		AND acp.Grade = max_grades.Grade
+    SELECT acp.StudentID
+    FROM
+        all_courses_passed AS acp
+        JOIN
+        max_grades
+        ON
+        acp.CourseOfferId = max_grades.CourseOfferId
+    WHERE
+        EXISTS(
+            SELECT CourseOfferId
+            FROM
+                CourseOffers AS co
+            WHERE
+                Year = 2018 AND
+                Quartile = 1
+        )
+        AND acp.Grade = max_grades.Grade
 );
