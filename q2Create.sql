@@ -25,6 +25,7 @@ CREATE VIEW females_per_department(Department, Amount) as (
     GROUP BY d.Dept
 );
 
+
 -- Q4
 CREATE VIEW students_per_department(Department, Amount) as (
 
