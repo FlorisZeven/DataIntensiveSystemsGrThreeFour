@@ -1,5 +1,5 @@
 
-CREATE INDEX course_req_srID_crID on courseRegistrations(CourseofferId);
+-- CREATE INDEX course_req_srID_crID on courseRegistrations(CourseofferId);
 
 --Q2
 CREATE VIEW high_gpa_no_fail(StudentId, HIGHGPA) as (
@@ -39,6 +39,35 @@ CREATE VIEW students_per_department(Department, Amount) as (
     WHERE  s.Studentid = srtd.StudentId
             and    d.DegreeId = srtd.DegreeId
     GROUP BY d.Dept
+);
+
+-- Q6
+CREATE VIEW max_grades(CourseOfferId, Grade) AS (
+
+    SELECT CourseOfferId, max(Grade)
+    FROM all_courses_passed
+    GROUP BY CourseOfferId
+);
+
+CREATE VIEW ExcellentStudents2018Q1(StudentID) AS (
+
+    SELECT acp.StudentID
+    FROM
+        all_courses_passed AS acp
+        JOIN
+        max_grades
+        ON
+        acp.CourseOfferId = max_grades.CourseOfferId
+    WHERE
+        EXISTS(
+            SELECT CourseOfferId
+            FROM
+                CourseOffers AS co
+            WHERE
+                Year = 2018 AND
+                Quartile = 1
+        )
+        AND acp.Grade = max_grades.Grade
 );
 
 -- Q8
@@ -119,32 +148,4 @@ CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, GPA) AS
         FROM high_gpa JOIN CourseRegistrations as cr ON cr.StudentRegistrationId = high_gpa.StudentRegistrationId
         WHERE cr.Grade  < 5 AND cr.Grade IS NOT NULL
     )
-);
-
-CREATE VIEW max_grades(CourseOfferId, Grade) AS (
-
-    SELECT CourseOfferId, max(Grade)
-    FROM all_courses_passed
-    GROUP BY CourseOfferId
-);
-
-CREATE VIEW ExcellentStudents2018Q1(StudentID) AS (
-
-    SELECT acp.StudentID
-    FROM
-        all_courses_passed AS acp
-        JOIN
-        max_grades
-        ON
-        acp.CourseOfferId = max_grades.CourseOfferId
-    WHERE
-        EXISTS(
-            SELECT CourseOfferId
-            FROM
-                CourseOffers AS co
-            WHERE
-                Year = 2018 AND
-                Quartile = 1
-        )
-        AND acp.Grade = max_grades.Grade
 );
