@@ -1,10 +1,17 @@
 -- Q3
 
-CREATE VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS
-(
+CREATE VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS (
     SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
       FROM CourseRegistrations as cr
       JOIN StudentRegistrationsToDegrees as srtd ON cr.StudentRegistrationId = srtd.StudentRegistrationId
+);
+
+-- Q3
+CREATE VIEW active_per_degree(DegreeId, FemaleAmount, Amount) as (
+    SELECT gac.DegreeId, sum(CASE s.Gender WHEN 'F' then 1 else 0 end), count(distinct gac.StudentId)
+    FROM gpa_active_complete as gac, Students as s
+    WHERE s.StudentId = gac.StudentId and gac.Complete = 0
+    GROUP BY gac.DegreeId
 );
 
 -- Q4
