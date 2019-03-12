@@ -60,15 +60,21 @@ CREATE MATERIALIZED VIEW all_courses_passed(StudentId, DegreeId, CourseOfferId, 
 
 CREATE INDEX acp_studentid_degreeid ON all_courses_passed(StudentId, DegreeId);
 
+CREATE VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS
+(
+    SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
+      FROM CourseRegistrations as cr
+      JOIN StudentRegistrationsToDegrees as srtd ON cr.StudentRegistrationId = srtd.StudentRegistrationId
+);
 
 CREATE MATERIALIZED VIEW gpa_active_complete(StudentId, DegreeId, Weighted, sumECTS, GPA, complete) AS
 (
-    SELECT acp.StudentId, acp.DegreeId, sum(Grade*ECTS) as Weighted, sum(ECTS) as sumECTS, CAST(sum(Grade*ECTS) AS  FLOAT) / sum(ECTS), case when  sum(ECTS) >=  TotalECTS then 1 else 0 end as complete
-      FROM all_courses_passed as acp JOIN Degrees as d ON d.DegreeId = acp.DegreeId
-      JOIN CourseOffers as co ON co.CourseOfferId = acp.CourseOfferId
-      JOIN Courses as c ON c.CourseId = co.CourseId
-    GROUP BY acp.StudentId, acp.DegreeId, TotalECTS
+    SELECT acr.StudentId, acr.DegreeId, sum(Grade*ECTS) as Weighted, sum(ECTS) as sumECTS, CAST(sum(Grade*ECTS) AS  FLOAT) / sum(ECTS), case when  sum(ECTS) >=  TotalECTS then 1 else 0 end as complete
+		FROM
+		all_courses_registrated as acr
+		JOIN Degrees as d ON d.DegreeId = acr.DegreeId
+		JOIN CourseOffers as co ON co.CourseOfferId = acr.CourseOfferId
+		JOIN Courses as c ON c.CourseId = co.CourseId
+    GROUP BY acr.StudentId, acr.DegreeId, TotalECTS
 );
-
-
 
