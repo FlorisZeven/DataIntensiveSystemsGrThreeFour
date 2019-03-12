@@ -1,3 +1,11 @@
+-- Q3
+
+CREATE VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS
+(
+    SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
+      FROM CourseRegistrations as cr
+      JOIN StudentRegistrationsToDegrees as srtd ON cr.StudentRegistrationId = srtd.StudentRegistrationId
+);
 
 -- Q4
 CREATE VIEW females_per_department(Department, Amount) as (
@@ -33,11 +41,13 @@ CREATE VIEW total_students_per_offer(CourseOfferID, totalStudents) AS (
 -- Q8
 CREATE VIEW total_assistants_per_offer(CourseOfferID, totalAssistants) AS (
 
-    SELECT CourseOfferID, COUNT(StudentRegistrationId)
+    SELECT co.CourseOfferID, COUNT(sa.StudentRegistrationId)
     FROM
-        StudentAssistants
+        CourseOffers as co
+        FULL JOIN
+        StudentAssistants as sa ON co.CourseOfferId = sa.CourseOfferId
     GROUP BY
-        CourseOfferID
+        co.CourseOfferID
 );
 
 -- Q8
@@ -45,7 +55,7 @@ CREATE VIEW total_students_and_assistants_per_offer(CourseOfferID) AS
 (
     SELECT DISTINCT tspo.CourseOfferID
     FROM total_students_per_offer AS tspo JOIN total_assistants_per_offer AS tapo ON tspo.CourseOfferID = tapo.CourseOfferID
-    WHERE CAST(totalStudents AS FLOAT) / totalAssistants > 50.0
+    WHERE CAST(totalStudents + 50 AS FLOAT) / (totalAssistants + 1) > 50.0
 );
 
 
@@ -59,13 +69,6 @@ CREATE MATERIALIZED VIEW all_courses_passed(StudentId, DegreeId, CourseOfferId, 
 );
 
 CREATE INDEX acp_studentid_degreeid ON all_courses_passed(StudentId, DegreeId);
-
-CREATE VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS
-(
-    SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
-      FROM CourseRegistrations as cr
-      JOIN StudentRegistrationsToDegrees as srtd ON cr.StudentRegistrationId = srtd.StudentRegistrationId
-);
 
 CREATE MATERIALIZED VIEW gpa_active_complete(StudentId, DegreeId, Weighted, sumECTS, GPA, complete) AS
 (
