@@ -1,5 +1,4 @@
-CREATE INDEX course_req_grade on courseRegistrations(Grade);
-CREATE INDEX course_req_srID_crID on courseRegistrations(studentRegistrationId, courseofferId);
+CREATE INDEX course_req_srID_crID on courseRegistrations(CourseofferId);
 
 -- Q3
 
