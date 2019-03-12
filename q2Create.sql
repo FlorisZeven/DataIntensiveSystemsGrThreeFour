@@ -2,7 +2,7 @@
 CREATE INDEX course_req_srID_crID on courseRegistrations(CourseofferId);
 
 --Q2
-CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, HIGHGPA) as (
+CREATE VIEW high_gpa_no_fail(StudentId, HIGHGPA) as (
     SELECT StudentId, CAST(sum(Grade * ECTS) AS FLOAT) / sum(ECTS) as HIGHGPA
     FROM CourseRegistrations as cr
     JOIN CourseOffers as co ON cr.CourseOfferId = co.CourseOfferId
@@ -13,7 +13,7 @@ CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, HIGHGPA) as (
 );
 
 -- Q3
-CREATE MATERIALIZED VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS (
+CREATE VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS (
     SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
       FROM CourseRegistrations as cr
       JOIN StudentRegistrationsToDegrees as srtd ON cr.StudentRegistrationId = srtd.StudentRegistrationId
