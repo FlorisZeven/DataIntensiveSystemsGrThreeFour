@@ -8,7 +8,7 @@ CREATE MATERIALIZED VIEW all_courses_registrated(StudentId, DegreeId, CourseOffe
 
 
 -- Q4
-CREATE VIEW females_per_department(Department, Amount) as (
+CREATE MATERIALIZED VIEW females_per_department(Department, Amount) as (
 
     SELECT Dept, count(distinct s.StudentId)
     FROM Students as s, Degrees as d, StudentRegistrationsToDegrees as srtd
@@ -30,7 +30,7 @@ CREATE VIEW students_per_department(Department, Amount) as (
 );
 
 -- Q8
-CREATE VIEW total_students_per_offer(CourseOfferID, totalStudents) AS (
+CREATE MATERIALIZED VIEW total_students_per_offer(CourseOfferID, totalStudents) AS (
 
     SELECT CourseOfferID, COUNT(StudentRegistrationId)
     FROM
@@ -40,7 +40,7 @@ CREATE VIEW total_students_per_offer(CourseOfferID, totalStudents) AS (
 );
 
 -- Q8
-CREATE VIEW total_assistants_per_offer(CourseOfferID, totalAssistants) AS (
+CREATE MATERIALIZED VIEW total_assistants_per_offer(CourseOfferID, totalAssistants) AS (
 
     SELECT co.CourseOfferID, COUNT(sa.StudentRegistrationId)
     FROM
@@ -52,7 +52,7 @@ CREATE VIEW total_assistants_per_offer(CourseOfferID, totalAssistants) AS (
 );
 
 -- Q8
-CREATE VIEW total_students_and_assistants_per_offer(CourseOfferID) AS
+CREATE MATERIALIZED VIEW total_students_and_assistants_per_offer(CourseOfferID) AS
 (
     SELECT DISTINCT tspo.CourseOfferID
     FROM total_students_per_offer AS tspo JOIN total_assistants_per_offer AS tapo ON tspo.CourseOfferID = tapo.CourseOfferID
