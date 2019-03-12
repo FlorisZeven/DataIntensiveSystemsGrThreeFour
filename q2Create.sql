@@ -6,13 +6,6 @@ CREATE VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) A
       JOIN StudentRegistrationsToDegrees as srtd ON cr.StudentRegistrationId = srtd.StudentRegistrationId
 );
 
--- Q3
-CREATE VIEW active_per_degree(DegreeId, FemaleAmount, Amount) as (
-    SELECT gac.DegreeId, sum(CASE s.Gender WHEN 'F' then 1 else 0 end), count(distinct gac.StudentId)
-    FROM gpa_active_complete as gac, Students as s
-    WHERE s.StudentId = gac.StudentId and gac.Complete = 0
-    GROUP BY gac.DegreeId
-);
 
 -- Q4
 CREATE VIEW females_per_department(Department, Amount) as (
@@ -89,3 +82,10 @@ CREATE MATERIALIZED VIEW gpa_active_complete(StudentId, DegreeId, Weighted, sumE
     GROUP BY acr.StudentId, acr.DegreeId, TotalECTS
 );
 
+-- Q3
+CREATE VIEW active_per_degree(DegreeId, FemaleAmount, Amount) as (
+    SELECT gac.DegreeId, sum(CASE s.Gender WHEN 'F' then 1 else 0 end), count(distinct gac.StudentId)
+    FROM gpa_active_complete as gac, Students as s
+    WHERE s.StudentId = gac.StudentId and gac.Complete = 0
+    GROUP BY gac.DegreeId
+);
