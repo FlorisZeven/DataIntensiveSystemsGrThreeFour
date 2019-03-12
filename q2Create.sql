@@ -110,3 +110,33 @@ CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, GPA) AS
         WHERE cr.Grade  < 5 AND cr.Grade IS NOT NULL
     )
 );
+
+
+
+CREATE VIEW max_grades(CourseOfferId, Grade) AS (
+
+	SELECT CourseOfferId, max(Grade)
+	FROM all_courses_passed
+	GROUP BY CourseOfferId
+);
+
+CREATE VIEW ExcellentStudents2018Q1(StudentRegistrationID) AS (
+
+	SELECT acp.StudentRegistrationID
+	FROM
+		all_courses_passed AS acp
+		JOIN
+		max_grades
+		ON
+		acp.CourseOfferId = max_grades.CourseOfferId
+	WHERE
+		EXISTS(
+			SELECT CourseOfferId
+			FROM
+				CourseOffers AS co
+			WHERE
+				Year = 2018 AND
+				Quartile = 1
+		)
+		AND acp.Grade = max_grades.Grade
+);
