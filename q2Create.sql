@@ -1,7 +1,7 @@
+
 CREATE INDEX course_req_srID_crID on courseRegistrations(CourseofferId);
 
 -- Q3
-
 CREATE MATERIALIZED VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS (
     SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
       FROM CourseRegistrations as cr
@@ -90,4 +90,23 @@ CREATE VIEW active_per_degree(DegreeId, FemaleAmount, Amount) as (
     FROM gpa_active_complete as gac, Students as s
     WHERE s.StudentId = gac.StudentId and gac.Complete = 0
     GROUP BY gac.DegreeId
+);
+
+CREATE VIEW high_gpa(StudentRegistrationId, StudentId, GPA) AS
+(
+	SELECT srtd.StudentRegistrationId, gac.StudentId, gac.GPA
+	FROM gpa_active_complete as gac JOIN StudentRegistrationsToDegrees as srtd ON srtd.StudentId = gac.StudentId AND srtd.DegreeId = gac.DegreeID
+	WHERE GPA >= 9.0 AND Complete = 1
+);
+
+CREATE MATERIALIZED VIEW high_gpa_no_fail(StudentId, GPA) AS
+(
+    SELECT high_gpa.StudentId, high_gpa.GPA
+    FROM high_gpa
+    WHERE high_gpa.StudentRegistrationId NOT IN
+    (
+        SELECT cr.StudentRegistrationId
+        FROM high_gpa JOIN CourseRegistrations as cr ON cr.StudentRegistrationId = high_gpa.StudentRegistrationId
+        WHERE cr.Grade  < 5 AND cr.Grade IS NOT NULL
+    )
 );
