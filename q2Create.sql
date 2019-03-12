@@ -1,6 +1,6 @@
 -- Q3
 
-CREATE VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS (
+CREATE MATERIALIZED VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS (
     SELECT srtd.StudentId, srtd.DegreeId, cr.CourseOfferId, cr.Grade
       FROM CourseRegistrations as cr
       JOIN StudentRegistrationsToDegrees as srtd ON cr.StudentRegistrationId = srtd.StudentRegistrationId
@@ -70,6 +70,8 @@ CREATE MATERIALIZED VIEW all_courses_passed(StudentId, DegreeId, CourseOfferId, 
 );
 
 CREATE INDEX acp_studentid_degreeid ON all_courses_passed(StudentId, DegreeId);
+CREATE INDEX course_req_grade on courseRegistrations(Grade);
+CREATE INDEX course_req_srID_crID on courseRegistrations(studentRegistrationId, courseofferId);
 
 CREATE MATERIALIZED VIEW gpa_active_complete(StudentId, DegreeId, Weighted, sumECTS, GPA, complete) AS
 (
