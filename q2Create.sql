@@ -1,3 +1,6 @@
+CREATE INDEX course_req_grade on courseRegistrations(Grade);
+CREATE INDEX course_req_srID_crID on courseRegistrations(studentRegistrationId, courseofferId);
+
 -- Q3
 
 CREATE MATERIALIZED VIEW all_courses_registrated(StudentId, DegreeId, CourseOfferId, Grade) AS (
@@ -30,7 +33,7 @@ CREATE VIEW students_per_department(Department, Amount) as (
 );
 
 -- Q8
-CREATE MATERIALIZED VIEW total_students_per_offer(CourseOfferID, totalStudents) AS (
+CREATE VIEW total_students_per_offer(CourseOfferID, totalStudents) AS (
 
     SELECT CourseOfferID, COUNT(StudentRegistrationId)
     FROM
@@ -40,7 +43,7 @@ CREATE MATERIALIZED VIEW total_students_per_offer(CourseOfferID, totalStudents) 
 );
 
 -- Q8
-CREATE MATERIALIZED VIEW total_assistants_per_offer(CourseOfferID, totalAssistants) AS (
+CREATE VIEW total_assistants_per_offer(CourseOfferID, totalAssistants) AS (
 
     SELECT co.CourseOfferID, COUNT(sa.StudentRegistrationId)
     FROM
@@ -52,7 +55,7 @@ CREATE MATERIALIZED VIEW total_assistants_per_offer(CourseOfferID, totalAssistan
 );
 
 -- Q8
-CREATE MATERIALIZED VIEW total_students_and_assistants_per_offer(CourseOfferID) AS
+CREATE VIEW total_students_and_assistants_per_offer(CourseOfferID) AS
 (
     SELECT DISTINCT tspo.CourseOfferID
     FROM total_students_per_offer AS tspo JOIN total_assistants_per_offer AS tapo ON tspo.CourseOfferID = tapo.CourseOfferID
@@ -70,8 +73,6 @@ CREATE MATERIALIZED VIEW all_courses_passed(StudentId, DegreeId, CourseOfferId, 
 );
 
 CREATE INDEX acp_studentid_degreeid ON all_courses_passed(StudentId, DegreeId);
-CREATE INDEX course_req_grade on courseRegistrations(Grade);
-CREATE INDEX course_req_srID_crID on courseRegistrations(studentRegistrationId, courseofferId);
 
 CREATE MATERIALIZED VIEW gpa_active_complete(StudentId, DegreeId, Weighted, sumECTS, GPA, complete) AS
 (
